@@ -1,0 +1,10 @@
+# OS / IDE files
+.DS_Store
+Thumbs.db
+*.log
+
+# WordPress core files should not be here (only plugin code)
+wp-admin/
+wp-includes/
+wp-content/cache/
+wp-content/uploads/

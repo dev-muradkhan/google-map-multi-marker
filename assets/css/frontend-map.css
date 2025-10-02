@@ -1,0 +1,56 @@
+/**
+ * Basic Frontend Styles for Google Map Multi Marker
+ */
+
+.gmap-mm-container {
+    /* Ensure the container is treated as a block element - Use !important for debugging */
+    display: block !important;
+    /* Default dimensions - Use !important for debugging */
+    width: 100% !important; /* Ensure it takes width */
+    height: 400px !important; /* Ensure it has height */
+    min-height: 150px !important; /* Ensure a minimum height */
+    /* Add a border for debugging visibility */
+    border: 2px dashed blue !important; /* Make border visible for debugging */
+    background-color: #f0f0f0; /* Add background to see container area */
+    position: relative; /* Ensure positioning context */
+    z-index: 1; /* Ensure it's not hidden behind other elements */
+}
+
+/* Ensure the loading text is visible initially */
+.gmap-mm-container p {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
+
+/* Styles for the InfoWindow content */
+.gmap-mm-infowindow {
+    padding: 5px;
+    max-width: 300px; /* Limit infowindow width */
+}
+
+.gmap-mm-infowindow h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1.1em;
+}
+
+.gmap-mm-infowindow p {
+    margin: 0 0 5px 0;
+    line-height: 1.4;
+}
+
+.gmap-mm-infowindow img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 5px;
+    border-radius: 3px;
+}
+
+.gmap-mm-infowindow a {
+    color: #0073aa;
+    text-decoration: none;
+}
+.gmap-mm-infowindow a:hover {
+    text-decoration: underline;
+}

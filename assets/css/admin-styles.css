@@ -1,0 +1,64 @@
+/* Styles for Google Map Multi Marker Admin Interface */
+
+#gmap-markers-table th,
+#gmap-markers-table td {
+    vertical-align: middle;
+}
+
+#gmap-markers-table input[type="text"],
+#gmap-markers-table input[type="number"] {
+    width: 98%; /* Make inputs fill cell */
+}
+
+#gmap-markers-table .actions button {
+    margin-right: 3px;
+    padding: 2px 5px; /* Smaller buttons */
+    vertical-align: middle;
+}
+#gmap-markers-table .actions .spinner {
+    float: none;
+    vertical-align: middle;
+    margin-left: 5px;
+    visibility: hidden; /* Hide spinner initially */
+}
+#gmap-markers-table .actions .spinner.is-active {
+    visibility: visible;
+}
+
+
+/* Style for readonly rows */
+.gmap-marker-row:not(.editable) input[type="text"] {
+    background-color: #f0f0f0;
+    border: 1px solid transparent;
+    box-shadow: none;
+    cursor: default; /* Indicate non-editable */
+}
+
+/* Hide save/cancel when not editing, hide edit/delete when editing */
+.gmap-marker-row:not(.editable) .gmap-mm-save-marker,
+.gmap-marker-row:not(.editable) .gmap-mm-cancel-edit,
+.gmap-marker-row:not(.editable) .gmap-mm-upload-marker-image-button { /* Hide upload button too when not editing */
+    display: none;
+}
+.gmap-marker-row.editable .gmap-mm-edit-marker,
+.gmap-marker-row.editable .gmap-mm-delete-marker {
+    display: none;
+}
+
+/* Ensure upload button is aligned */
+#gmap-markers-table td .gmap-mm-upload-marker-image-button {
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+#gmap-marker-import-section .spinner {
+     visibility: hidden;
+}
+#gmap-marker-import-section .spinner.is-active {
+     visibility: visible;
+}
+
+/* Add some padding to the meta box */
+#gmap_mm_markers_meta_box .inside {
+    padding: 12px;
+}
