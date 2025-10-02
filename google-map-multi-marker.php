@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name:       Google Map Multi-Marker
- * Plugin URI:        https://techengi.com
+ * Plugin URI:        https://techengi.com/
  * Description:       Displays Google Maps with multiple customizable markers. Manage maps and markers easily. Includes Elementor support.
  * Version:           1.0.0
  * Author:            Md Murad Khan
- * Author URI:        
+ * Author URI:        https://techengi.com/
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       google-map-multi-marker
