@@ -74,27 +74,49 @@ function gmap_mm_render_map_settings_meta_box( $post ) {
 
     $settings = wp_parse_args($options, $defaults);
 
+	// Parse width and height values for the new input fields
+	// Width
+	preg_match('/^(\d*\.?\d+)(\S*)$/', $settings['width'], $width_parts);
+	$width_val = !empty($width_parts[1]) ? $width_parts[1] : 100;
+	$width_unit = !empty($width_parts[2]) ? $width_parts[2] : '%';
+
+	// Height
+	preg_match('/^(\d*\.?\d+)(\S*)$/', $settings['height'], $height_parts);
+	$height_val = !empty($height_parts[1]) ? $height_parts[1] : 400;
+	$height_unit = !empty($height_parts[2]) ? $height_parts[2] : 'px';
+
+
 	?>
 	<table class="form-table">
 		<tbody>
 			<!-- Width -->
 			<tr>
 				<th scope="row">
-                    <label for="gmap_mm_width"><?php esc_html_e( 'Map Width', 'google-map-multi-marker' ); ?></label>
+                    <label for="gmap_mm_width_val"><?php esc_html_e( 'Map Width', 'google-map-multi-marker' ); ?></label>
                 </th>
 				<td>
-                    <input type="text" id="gmap_mm_width" name="_gmap_options[width]" value="<?php echo esc_attr( $settings['width'] ); ?>" size="10" />
-                    <p class="description"><?php esc_html_e( 'Enter width (e.g., 100%, 600px). Default: 100%', 'google-map-multi-marker' ); ?></p>
+					<?php // ** UPDATED: New width inputs ** ?>
+                    <input type="number" id="gmap_mm_width_val" name="_gmap_options[width_value]" value="<?php echo esc_attr( $width_val ); ?>" class="small-text" min="0" step="1" />
+					<select name="_gmap_options[width_unit]">
+						<option value="px" <?php selected($width_unit, 'px'); ?>>px</option>
+						<option value="%" <?php selected($width_unit, '%'); ?>>%</option>
+					</select>
+                    <p class="description"><?php esc_html_e( 'Enter width value and select unit. Default: 100%', 'google-map-multi-marker' ); ?></p>
                 </td>
 			</tr>
             <!-- Height -->
             <tr>
 				<th scope="row">
-                    <label for="gmap_mm_height"><?php esc_html_e( 'Map Height', 'google-map-multi-marker' ); ?></label>
+                    <label for="gmap_mm_height_val"><?php esc_html_e( 'Map Height', 'google-map-multi-marker' ); ?></label>
                 </th>
 				<td>
-                    <input type="text" id="gmap_mm_height" name="_gmap_options[height]" value="<?php echo esc_attr( $settings['height'] ); ?>" size="10" />
-                     <p class="description"><?php esc_html_e( 'Enter height (e.g., 400px). Default: 400px', 'google-map-multi-marker' ); ?></p>
+					<?php // ** UPDATED: New height inputs ** ?>
+                    <input type="number" id="gmap_mm_height_val" name="_gmap_options[height_value]" value="<?php echo esc_attr( $height_val ); ?>" class="small-text" min="0" step="1" />
+					<select name="_gmap_options[height_unit]">
+						<option value="px" <?php selected($height_unit, 'px'); ?>>px</option>
+						<option value="%" <?php selected($height_unit, '%'); ?>>%</option>
+					</select>
+                     <p class="description"><?php esc_html_e( 'Enter height value and select unit. Default: 400px', 'google-map-multi-marker' ); ?></p>
                 </td>
 			</tr>
             <!-- Zoom Level -->
@@ -371,9 +393,18 @@ function gmap_mm_save_meta_data( $post_id ) {
         $map_options_data = $_POST['_gmap_options'];
         $sanitized_options = [];
 
+		// ** UPDATED: Sanitize and combine new width/height fields **
+		$width_val = isset($map_options_data['width_value']) ? absint($map_options_data['width_value']) : 100;
+		$width_unit = isset($map_options_data['width_unit']) && in_array($map_options_data['width_unit'], ['px', '%']) ? $map_options_data['width_unit'] : '%';
+		$sanitized_options['width'] = $width_val . $width_unit;
+
+		$height_val = isset($map_options_data['height_value']) ? absint($map_options_data['height_value']) : 400;
+		$height_unit = isset($map_options_data['height_unit']) && in_array($map_options_data['height_unit'], ['px', '%']) ? $map_options_data['height_unit'] : 'px';
+		$sanitized_options['height'] = $height_val . $height_unit;
+
+
         // Sanitize each field individually
-        $sanitized_options['width'] = sanitize_text_field( $map_options_data['width'] ?? '100%' );
-        $sanitized_options['height'] = sanitize_text_field( $map_options_data['height'] ?? '400px' );
+        
         $sanitized_options['zoom'] = isset($map_options_data['zoom']) ? absint( $map_options_data['zoom'] ) : 8;
         $sanitized_options['lat'] = isset($map_options_data['lat']) ? sanitize_text_field( $map_options_data['lat'] ) : '39.8283';
         $sanitized_options['lng'] = isset($map_options_data['lng']) ? sanitize_text_field( $map_options_data['lng'] ) : '-98.5795';
@@ -418,7 +449,7 @@ add_action( 'save_post_gmap_map', 'gmap_mm_save_meta_data' ); // Hook specifical
  * Enqueue scripts and styles for the admin meta boxes.
  */
 function gmap_mm_enqueue_admin_scripts( $hook ) {
-    global $post, $post_type; // Make $post available
+    global $post;
 
     // Only load on the edit screen for our CPT
     if ( ( 'post.php' == $hook || 'post-new.php' == $hook ) && isset($post->post_type) && 'gmap_map' == $post->post_type ) {
@@ -445,7 +476,7 @@ function gmap_mm_enqueue_admin_scripts( $hook ) {
         // Localize data needed for the script (already done inside render function, but could be moved here)
         $markers = get_post_meta( $post->ID, '_gmap_markers', true );
         $markers = is_array($markers) ? $markers : [];
-        wp_localize_script('gmap-mm-admin-meta-box-script', 'gmapMmInitialMarkers', $markers);
+        wp_localize_script('gmap-mm-admin-meta-box-script', 'gmapMmInitialMarkers', array_values($markers));
         wp_localize_script('gmap-mm-admin-meta-box-script', 'gmapMmAjax', [
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
             'saveNonce' => wp_create_nonce( 'gmap_mm_save_markers' ),

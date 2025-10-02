@@ -4,14 +4,14 @@
 
 .gmap-mm-container {
     /* Ensure the container is treated as a block element - Use !important for debugging */
-    display: block !important;
+    display: block;
     /* Default dimensions - Use !important for debugging */
-    width: 100% !important; /* Ensure it takes width */
-    height: 400px !important; /* Ensure it has height */
-    min-height: 150px !important; /* Ensure a minimum height */
+    width: 100%; /* Ensure it takes width */
+    height: 400px; /* Ensure it has height */
+    min-height: 150px; /* Ensure a minimum height */
     /* Add a border for debugging visibility */
-    border: 2px dashed blue !important; /* Make border visible for debugging */
-    background-color: #f0f0f0; /* Add background to see container area */
+    /*  border: 2px dashed blue !important; Make border visible for debugging */
+    background-color: #e9e9e9; /* Add background to see container area */
     position: relative; /* Ensure positioning context */
     z-index: 1; /* Ensure it's not hidden behind other elements */
 }
