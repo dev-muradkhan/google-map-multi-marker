@@ -69,6 +69,7 @@ function gmap_mm_render_map_settings_meta_box( $post ) {
         'tooltip_show_phone' => '1',
         'tooltip_show_weblink' => '1',
         'tooltip_show_image' => '1',
+        'custom_styles' => '',
     ];
 
     $settings = wp_parse_args($options, $defaults);
@@ -186,10 +187,15 @@ function gmap_mm_render_markers_meta_box( $post ) {
     // Get saved markers
     $markers = get_post_meta( $post->ID, '_gmap_markers', true );
     $markers = is_array($markers) ? $markers : [];
+    $has_markers = ! empty($markers);
 
     // Get global default marker and tooltip images
     $default_marker_icon = get_option( 'gmap_mm_default_marker_icon', GMAP_MM_DEFAULT_MARKER_ICON );
     $default_tooltip_image = get_option( 'gmap_mm_default_tooltip_image', GMAP_MM_DEFAULT_TOOLTIP_IMAGE );
+
+    // ** NEW: Create the URL for the export button **
+    $export_nonce = wp_create_nonce('gmap_mm_export_csv_nonce');
+    $export_url = admin_url('admin.php?action=gmap_mm_export_csv&post_id=' . $post->ID . '&gmap_mm_nonce=' . $export_nonce);
 
     ?>
     <div id="gmap-markers-container" data-post-id="<?php echo esc_attr( $post->ID ); ?>">
@@ -216,12 +222,16 @@ function gmap_mm_render_markers_meta_box( $post ) {
                 <tr>
                     <td colspan="9">
                         <button type="button" class="button button-primary" id="gmap-mm-add-marker-button"><?php esc_html_e( 'Add Marker', 'google-map-multi-marker' ); ?></button>
+                        <?php // ** NEW: Added Export Button ** ?>
+                        <?php if ($has_markers) : ?>
+                            <a href="<?php echo esc_url($export_url); ?>" class="button" style="margin-left: 10px;"><?php esc_html_e( 'Export Markers (CSV)', 'google-map-multi-marker' ); ?></a>
+                        <?php endif; ?>
                     </td>
                 </tr>
             </tfoot>
         </table>
 
-        <div id="gmap-marker-import-section" style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
+        <div id="gmap-marker-import-export-section" style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 15px;">
             <h3><?php esc_html_e( 'Bulk Import Markers (CSV)', 'google-map-multi-marker' ); ?></h3>
             <p><?php esc_html_e( 'Upload a CSV file with marker data. Required columns: latitude, longitude. Optional columns: title, address, phone, web_link, marker_image, tooltip_image.', 'google-map-multi-marker' ); ?></p>
             <input type="file" id="gmap-mm-csv-file" name="csv_file" accept=".csv" />
@@ -258,10 +268,10 @@ function gmap_mm_render_markers_meta_box( $post ) {
                     </div>
                 </td>
                 <td class="actions">
-                    <button type="button" class="button button-primary gmap-mm-save-marker" title="<?php esc_attr_e( 'Save Marker', 'google-map-multi-marker' ); ?>">✅ <?php // esc_html_e( 'Save', 'google-map-multi-marker' ); ?></button>
-                    <button type="button" class="button gmap-mm-cancel-edit" title="<?php esc_attr_e( 'Cancel Edit', 'google-map-multi-marker' ); ?>" style="display: none;">❌ <?php // esc_html_e( 'Cancel', 'google-map-multi-marker' ); ?></button>
-                    <button type="button" class="button gmap-mm-edit-marker" title="<?php esc_attr_e( 'Edit Marker', 'google-map-multi-marker' ); ?>" style="display: none;">✏️ <?php // esc_html_e( 'Edit', 'google-map-multi-marker' ); ?></button>
-                    <button type="button" class="button button-link-delete gmap-mm-delete-marker" title="<?php esc_attr_e( 'Delete Marker', 'google-map-multi-marker' ); ?>" style="display: none;">🗑️ <?php // esc_html_e( 'Delete', 'google-map-multi-marker' ); ?></button>
+                    <button type="button" class="button button-primary gmap-mm-save-marker" title="<?php esc_attr_e( 'Save Marker', 'google-map-multi-marker' ); ?>">✅</button>
+                    <button type="button" class="button gmap-mm-cancel-edit" title="<?php esc_attr_e( 'Cancel Edit', 'google-map-multi-marker' ); ?>" style="display: none;">❌</button>
+                    <button type="button" class="button gmap-mm-edit-marker" title="<?php esc_attr_e( 'Edit Marker', 'google-map-multi-marker' ); ?>" style="display: none;">✏️</button>
+                    <button type="button" class="button button-link-delete gmap-mm-delete-marker" title="<?php esc_attr_e( 'Delete Marker', 'google-map-multi-marker' ); ?>" style="display: none;">🗑️</button>
                     <span class="spinner"></span>
                 </td>
             </tr>
@@ -269,11 +279,11 @@ function gmap_mm_render_markers_meta_box( $post ) {
 
         <?php // Store initial markers data for JS ?>
         <script type="text/javascript">
-            var gmapMmInitialMarkers = <?php echo wp_json_encode( $markers ); ?>;
+            var gmapMmInitialMarkers = <?php echo wp_json_encode( array_values($markers) ); // Use array_values to ensure it's a JSON array ?>;
             // Pass AJAX URL and nonces to JavaScript
             var gmapMmAjax = {
                 ajaxUrl: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
-                saveNonce: '<?php echo esc_js( wp_create_nonce( 'gmap_mm_save_markers' ) ); ?>', // Re-create nonce for JS use
+                saveNonce: '<?php echo esc_js( wp_create_nonce( 'gmap_mm_save_markers' ) ); ?>',
                 importNonce: '<?php echo esc_js( wp_create_nonce( 'gmap_mm_import_markers' ) ); ?>',
                 defaultMarkerIcon: '<?php echo esc_url( $default_marker_icon ); ?>',
                 defaultTooltipImage: '<?php echo esc_url( $default_tooltip_image ); ?>'
@@ -419,7 +429,7 @@ function gmap_mm_enqueue_admin_scripts( $hook ) {
         wp_enqueue_script(
             'gmap-mm-admin-meta-box-script',
             GMAP_MM_PLUGIN_URL . 'assets/js/admin-meta-boxes.js',
-            ['jquery', 'wp-util'], // Add wp-util for wp.template
+            ['jquery'],
             GMAP_MM_VERSION,
             true // Load in footer
         );
