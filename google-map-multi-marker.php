@@ -3,7 +3,7 @@
  * Plugin Name:       Google Map Multi-Marker
  * Plugin URI:        https://techengi.com/
  * Description:       Displays Google Maps with multiple customizable markers. Manage maps and markers easily. Includes Elementor support.
- * Version:           1.2.0
+ * Version:           1.3.0
  * Author:            Md Murad Khan
  * Author URI:        https://techengi.com/
  * License:           GPL v2 or later
@@ -20,7 +20,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Define constants
  */
-define( 'GMAP_MM_VERSION', '1.2.0' );
+define( 'GMAP_MM_VERSION', '1.3.0' );
 define( 'GMAP_MM_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GMAP_MM_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'GMAP_MM_DEFAULT_MARKER_ICON', GMAP_MM_PLUGIN_URL . 'assets/images/icon-marker.png' );
