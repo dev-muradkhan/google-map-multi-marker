@@ -174,7 +174,28 @@ async function initializeMapForScope(scope) {
             const marker = new MarkerClass(markerOptions);
 
             // --- InfoWindow Content ---
+            // =========================================================================
+            // == MODIFICATION START: Dynamically set icon path from localized data ==
+            // =========================================================================
+            // Use the pluginUrl passed from PHP, with a fallback just in case.
+            const iconBaseUrl = (typeof gmapMmData !== 'undefined' && gmapMmData.pluginUrl)
+                ? gmapMmData.pluginUrl + 'assets/images/'
+                : '/wp-content/plugins/google-map-multi-marker/assets/images/';
+
+
             let infoContent = '<div class="gmap-mm-infowindow">';
+
+            // Inject styles directly into the info window for icon alignment and text color
+            infoContent += `<style>
+                .gmap-mm-infowindow .gmap-mm-info-line { display: flex; align-items: center; }
+                .gmap-mm-infowindow .gmap-mm-info-icon { margin-right: 8px; flex-shrink: 0; }
+                .gmap-mm-infowindow .gmap-mm-info-line span.gmap-mm-info-text,
+                .gmap-mm-infowindow .gmap-mm-info-line a.gmap-mm-info-text {
+                    color: #54595F !important;
+                    word-break: break-all;
+                }
+            </style>`;
+
             const tooltipImageUrl = markerData.tooltip_image !== undefined && markerData.tooltip_image !== null
                                     ? markerData.tooltip_image
                                     : mapData.options.default_tooltip_image;
@@ -183,18 +204,37 @@ async function initializeMapForScope(scope) {
                  infoContent += `<img src="${escapeHtml(tooltipImageUrl)}" alt="${escapeHtml(markerData.title)}" style="max-width: 150px; height: auto; margin-bottom: 5px;"><br>`;
             }
             if (mapData.options.tooltip_show_title === '1' && markerData.title) {
-                infoContent += `<strong>${escapeHtml(markerData.title)}</strong><br>`;
+                infoContent += `<strong style="display: block; margin-bottom: 5px;">${escapeHtml(markerData.title)}</strong>`;
             }
+
+            // Address with icon
             if (mapData.options.tooltip_show_address === '1' && markerData.address) {
-                infoContent += `${escapeHtml(markerData.address)}<br>`;
+                infoContent += `<div class="gmap-mm-info-line">
+                                    <img src="${iconBaseUrl}house-chimney-solid-full.svg" class="gmap-mm-info-icon" alt="Address icon">
+                                    <span class="gmap-mm-info-text">${escapeHtml(markerData.address)}</span>
+                                </div>`;
             }
-             if (mapData.options.tooltip_show_phone === '1' && markerData.phone) {
-                infoContent += `<a href="tel:${escapeHtml(markerData.phone.replace(/[^0-9+]/g, ''))}">${escapeHtml(markerData.phone)}</a><br>`;
+
+            // Phone with icon
+            if (mapData.options.tooltip_show_phone === '1' && markerData.phone) {
+                infoContent += `<div class="gmap-mm-info-line">
+                                    <img src="${iconBaseUrl}phone-solid-full.svg" class="gmap-mm-info-icon" alt="Phone icon">
+                                    <a class="gmap-mm-info-text" href="tel:${escapeHtml(markerData.phone.replace(/[^0-9+]/g, ''))}">${escapeHtml(markerData.phone)}</a>
+                                </div>`;
             }
+
+            // Web Link with icon
             if (mapData.options.tooltip_show_weblink === '1' && markerData.web_link) {
-                infoContent += `<a href="${escapeHtml(markerData.web_link)}" target="_blank" rel="noopener">${escapeHtml(markerData.web_link)}</a><br>`;
+                infoContent += `<div class="gmap-mm-info-line">
+                                    <img src="${iconBaseUrl}globe-solid-full.svg" class="gmap-mm-info-icon" alt="Website icon">
+                                    <a class="gmap-mm-info-text" href="${escapeHtml(markerData.web_link)}" target="_blank" rel="noopener">${escapeHtml(markerData.web_link)}</a>
+                                </div>`;
             }
             infoContent += '</div>';
+            // ===============================================================
+            // == MODIFICATION END                                          ==
+            // ===============================================================
+
 
             // --- Add Click Listener for InfoWindow ---
             if (infoContent.length > '<div class="gmap-mm-infowindow"></div>'.length) {
