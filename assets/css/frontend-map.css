@@ -2,6 +2,8 @@
  * Basic Frontend Styles for Google Map Multi Marker
  */
 
+
+
 .gmap-mm-container {
     /* Ensure the container is treated as a block element - Use !important for debugging */
     display: block;
@@ -26,7 +28,8 @@
 /* Styles for the InfoWindow content */
 .gmap-mm-infowindow {
     padding: 5px;
-    max-width: 300px; /* Limit infowindow width */
+    max-width: 220px; /* Limit infowindow width */
+    width: 100%;
 }
 
 .gmap-mm-infowindow h4 {
@@ -41,7 +44,8 @@
 }
 
 .gmap-mm-infowindow img {
-    max-width: 100%;
+    width: auto;
+    max-width: 60px !important;
     height: auto;
     margin-bottom: 5px;
     border-radius: 3px;
@@ -53,4 +57,31 @@
 }
 .gmap-mm-infowindow a:hover {
     text-decoration: underline;
+}
+
+
+/*
+=====================================================================
+== NEW CSS RULES FOR TOOLTIP UI FIX (Corrected October 5, 2025) ==
+=====================================================================
+*/
+
+.gm-style-iw-chr {
+    height: 20px;
+}
+/* 3. Style the Google Maps default close ('X') button */
+.gm-style-iw-c button.gm-ui-hover-effect {
+    transform: scale(0.8); /* Make the button smaller */
+    /* top: 5px !important;   Move it to the top */
+    right: -20px !important; /* Move it to the right */
+}
+
+
+.gm-style-iw-c {
+    width: 100%;
+    max-width: 220px !important;
+}
+
+.gmap-mm-infowindow strong {
+    font-weight: 700;
 }

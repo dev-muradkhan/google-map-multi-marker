@@ -61,7 +61,16 @@ class Gmap_MM_Frontend_Data_Manager {
      */
     public static function localize_script_data() {
         if ( ! empty( self::$map_data ) ) {
-            $data_to_localize = [ 'maps' => self::$map_data ];
+            // =========================================================================
+            // == MODIFICATION START: Added 'pluginUrl' to the localized data array. ==
+            // =========================================================================
+            $data_to_localize = [
+                'maps'      => self::$map_data,
+                'pluginUrl' => GMAP_MM_PLUGIN_URL // Pass the plugin URL constant to JS
+            ];
+            // =======================================================================
+            // == MODIFICATION END                                                  ==
+            // =======================================================================
             wp_localize_script( 'gmap-mm-frontend-script', 'gmapMmData', $data_to_localize );
         }
     }
@@ -220,6 +229,20 @@ function gmap_mm_enqueue_editor_scripts() {
         GMAP_MM_VERSION,
         true
     );
+
+    // ====================================================================================
+    // == MODIFICATION START: Localize data to pass the plugin URL to the editor script ==
+    // ====================================================================================
+    wp_localize_script(
+        'gmap-mm-editor-script',
+        'gmapMmEditorData', // A unique object name for editor-specific data
+        [
+            'pluginUrl' => GMAP_MM_PLUGIN_URL
+        ]
+    );
+    // ====================================================================================
+    // == MODIFICATION END                                                               ==
+    // ====================================================================================
 
 	if ( ! wp_style_is( 'gmap-mm-frontend-style', 'registered' ) ) {
          wp_register_style(
